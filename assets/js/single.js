@@ -1,4 +1,5 @@
 var issueContainerEl = document.querySelector("#issues-container");
+var limitWarningEl = document.querySelector("#limit-warning");
 
 var getRepoIssues = function(repo)  {
     console.log(repo);
@@ -10,7 +11,12 @@ var getRepoIssues = function(repo)  {
           response.json().then(function(data) {
             // pass response data to dom function
             displayIssues(data);
-            console.log(data[0].title);
+
+            // check if api has paginated issues
+            if (response.headers.get("link"))  {
+                console.log("repo has more than 30 issues");
+            }
+            displayWarning(repo);
           });
         }
         else {
@@ -56,4 +62,16 @@ var displayIssues = function(issues)  {
 
 };
 
-getRepoIssues("natejboucher/portfolio");
+var displayWarning = function(repo)  {
+    limitWarningEl.textContent = "To see more than 20 issues, visit ";
+
+    var linkEl = document.createElement("a");
+    linkEl.textContent = "See More Issues on Github.com";
+    linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+    linkEl.setAttribute("target", "_blank");
+
+    // append warning to container
+    limitWarningEl.appendChild(linkEl);
+};
+
+getRepoIssues("facebook/react");
